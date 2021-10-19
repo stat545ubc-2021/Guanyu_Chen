@@ -1,6 +1,6 @@
 ---
 title: "Mini Data Analysis Milestone 2"
-output: html_document
+output: github_document
 ---
 
 *To complete this milestone, you can either edit [this `.rmd` file](https://raw.githubusercontent.com/UBC-STAT/stat545.stat.ubc.ca/master/content/mini-project/mini-project-2.Rmd) directly. Fill in the sections that are commented out with `<!--- start your work here--->`. When you are done, make sure to knit to an `.md` file by changing the output in the YAML header to `github_document`, before submitting a tagged release on canvas.*
@@ -16,6 +16,7 @@ Begin by loading your data and the tidyverse package below:
 ```{r, message = FALSE}
 library(datateachr) # <- might contain the data you picked!
 library(tidyverse)
+library(ggplot2)
 ```
 
 # Learning Objectives
@@ -42,10 +43,10 @@ From milestone 1, you should have an idea of the basic structure of your dataset
 First, write out the 4 research questions you defined in milestone 1 were. This will guide your work through milestone 2:
 
 <!-------------------------- Start your work below ---------------------------->
-1. *FILL_THIS_IN*
-2. *FILL_THIS_IN*
-3. *FILL_THIS_IN*
-4. *FILL_THIS_IN*
+1. *What is the distribution of the extreme flow?*
+2. *What is the distribution of the range of the flow in a year?*
+3. *What is the distribution of the maximum and minimum of the flow?*
+4. *Did the maximum of flow relate to month?*
 <!----------------------------------------------------------------------------->
 
 ### 1.2 (10 points)
@@ -71,6 +72,130 @@ Ensure that the output of each operation is printed!
 Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
+**Q1: What is the distribution of the extreme flow?**
+Q1.1 *Summarizing 1*: Here I calculate the *range*, *mean*, *median*,*sd*, and *sample size* for the extreme flow. 
+All these descriptive statistical indexes are useful for depict the distribution of the extreme flow.
+```{r}
+flow_sample %>%
+  group_by(extreme_type)%>%
+  summarise(flow_mean = mean(flow,na.rm=T),flow_range=max(flow,na.rm = T)-min(flow,na.rm = T),flow_median=median(flow,na.rm = T),flow_sd=sd(flow,na.rm = T),flow_n=length(na.omit(flow)))
+# Here the range is defined as the difference between the largest and smallest values.For more details, please check https://en.wikipedia.org/wiki/Range_(statistics) 
+```
+
+Q1.2 *Graphing 8*: Create 3 histograms out of flow with 10, 20, and 40 bins. I think the histogram with 40 bins is the best one which provide more information and more accurate relationships of the data. With only 10 and 20 bins, some bins plot the distribution in a crude way (i.e., just one bin), especially for the minimum part. 
+The histogram is useful to visualize the distribution of extreme flow. 
+```{r}
+ggplot(flow_sample, aes(flow)) +
+  facet_wrap(~ extreme_type)+
+  geom_histogram(bins = 10 )
+
+
+ggplot(flow_sample, aes(flow)) +
+  facet_wrap(~ extreme_type)+
+  geom_histogram(bins = 20 )
+
+ggplot(flow_sample, aes(flow)) +
+  facet_wrap(~ extreme_type)+
+  geom_histogram(bins = 40 )
+```
+
+**Q2:What is the distribution of the range of the flow in a year?**
+Note that the original question is How did the range of the flow change in a year? I revised it a little bit to make it more suitable and clear for the following analysis. 
+
+Q2.1 *Summarizing 3*: Here I create a categorical variable with 3 or more groups from an existing numerical variable. 
+Generally speaking, this does not help for the question without any further theoretical backgrounds. Although 3 groups are created, the cutting points are arbitrary.
+
+```{r}
+flow_sample_new <- flow_sample %>%
+  pivot_wider(id_cols = c(year,station_id), names_from = extreme_type,values_from = flow)%>%
+  mutate(extreme_range= maximum-minimum)%>%
+  mutate(range_level=case_when(extreme_range<200 ~ "low",
+                               extreme_range<300 ~ "moderate",
+                               T~"high"
+                               ))
+table(flow_sample_new$range_level)
+```
+
+Q2.2 *Graphing 6*: Create a graph, make one of the axes logarithmic, and format the axes labels.
+
+
+
+```{r}
+library(scales)
+
+ggplot(flow_sample_new,aes(extreme_range))+
+  geom_density()
+
+ggplot(flow_sample_new,aes(x=extreme_range))+
+  scale_x_log10("Extreme Range with Logarithmic Transformation", 
+    breaks = trans_breaks("log10", function(x) 10^x),
+    labels = trans_format("log10", math_format(10^.x)))+
+  geom_density()
+```
+
+**Q3 What is the distribution of the maximum and minimum of the flow?**
+
+Q3.1 *Summarizing 2*
+```{r}
+flow_sample %>%
+  count(extreme_type)
+```
+
+Q3.2 *Graphing 5*
+```{r}
+# #not reasonable, just for demonstrating that task 5 and 7 could be done in some way.
+# flow_sample %>%
+#   filter(extreme_type=="maximum")%>%
+#     ggplot(aes(flow))+
+#     geom_density()+
+#     geom_blank(alpha=0.8)
+
+flow_sample %>%
+  filter(extreme_type=="maximum")%>%
+  ggplot(aes(month,flow))+
+  geom_point()+
+  geom_smooth()
+
+flow_sample %>%
+  filter(extreme_type=="minimum")%>%
+  ggplot(aes(month,flow))+
+  geom_point()+
+  geom_smooth()
+  
+
+```
+
+4. *Did the maximum of flow relate to month?*
+Q4.1 *Summarizing 1*
+```{r}
+flow_sample %>%
+  filter(extreme_type=="maximum")%>%
+  group_by(month)%>%
+  summarise(maximum_mean = mean(flow,na.rm=T),maximum_median=median(flow,na.rm = T),maximum_sd=sd(flow,na.rm = T), maximum_n = length(flow))
+
+
+```
+Q4.2 *Graphing 5*
+```{r}
+# ggplot(flow_sample,aes(month))+
+#   geom_bar(aes(fill=extreme_type),alpha=0.3)
+
+maximum_mean<- as.numeric(flow_sample %>%
+  filter(extreme_type =="maximum")%>%
+  summarise(mean(flow)))
+
+flow_sample %>%
+  filter(extreme_type =="maximum")%>%
+  ggplot(aes(as.factor(month),flow))+
+  geom_boxplot()+
+  geom_hline(yintercept = maximum_mean)
+
+
+
+# ggplot(flow_sample,aes(flow))+
+#   geom_bar(aes(fill=extreme_type),alpha=0.3)
+
+```
 
 
 <!----------------------------------------------------------------------------->
@@ -98,9 +223,19 @@ A reminder of the definition of *tidy* data:
 
 ### 2.1 (2.5 points)
 
-Based on the definition above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have >8 variables, just pick 8, and explain whether the data is untidy or tidy.
+Based on the definitions above, can you identify if your data is tidy or untidy? Go through all your columns, or if you have >8 variables, just pick 8, and explain whether the data is untidy or tidy.
 
 <!--------------------------- Start your work below --------------------------->
+
+Considering the definition of tidy data, my data are tidy. As the `glimpse()`and `head`shows, Each row is an **observation** for this station at the specific time. and Each column is a **variable**: Station_id is a categorical variable to recognize the station; Year, month, and day are the variables for the date; extreme_type is a categorical variable to distinguish the type of flow; sym is a a categorical variable, but there isn't any further description. As a result, Each cell is a **value** for a specific variable.
+As a result, our flow_sample is untidy. 
+
+
+```{r}
+glimpse(flow_sample)
+head(flow_sample)
+summary(flow_sample$sym)
+```
 
 
 <!----------------------------------------------------------------------------->
@@ -115,6 +250,29 @@ Be sure to explain your reasoning for this task. Show us the "before" and "after
 
 <!--------------------------- Start your work below --------------------------->
 
+Now our data are tidy, then untidy them by storing the same variable in multiple columns, i.e., in wide format, according to extreme_type.
+
+```{r}
+flow_sample_untidy <- flow_sample %>%
+  pivot_wider(id_cols = c(station_id,year), names_from = extreme_type, values_from = c(month,day,flow,sym))
+
+head(flow_sample) #before
+head(flow_sample_untidy) #after
+
+```
+
+For the untidy data, I transform them back. 
+
+```{r}
+
+flow_sample_tidy <- flow_sample_untidy %>%
+  pivot_longer(cols = c(-station_id,-year), names_to =c(".value","extreme_type"), names_sep = "_")%>%
+  arrange(extreme_type,year)
+
+head(flow_sample) #original
+head(flow_sample_untidy) # untidy
+head(flow_sample_tidy) # tidy
+```
 
 <!----------------------------------------------------------------------------->
 
@@ -125,6 +283,17 @@ Now, you should be more familiar with your data, and also have made progress in 
 Try to choose a version of your data that you think will be appropriate to answer these 2 questions in milestone 3. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelvant columns, etc.). 
 
 <!--------------------------- Start your work below --------------------------->
+
+
+
+```{r}
+
+```
+
+
+```{r}
+
+```
 
 
 <!----------------------------------------------------------------------------->
