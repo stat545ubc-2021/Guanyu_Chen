@@ -16,7 +16,9 @@ Begin by loading your data and the tidyverse package below:
 ```{r, message = FALSE}
 library(datateachr) # <- might contain the data you picked!
 library(tidyverse)
-library(ggplot2)
+# library(ggplot2)
+library(scales)
+
 ```
 
 # Learning Objectives
@@ -45,8 +47,8 @@ First, write out the 4 research questions you defined in milestone 1 were. This 
 <!-------------------------- Start your work below ---------------------------->
 1. *What is the distribution of the extreme flow?*
 2. *What is the distribution of the range of the flow in a year?*
-3. *What is the distribution of the maximum and minimum of the flow?*
-4. *Did the maximum of flow relate to month?*
+3. *What are the distributions of the maximum and minimum of the flow?*
+4. *Does the maximum of flow relate to month?*
 <!----------------------------------------------------------------------------->
 
 ### 1.2 (10 points)
@@ -73,7 +75,9 @@ Make sure it's clear what research question you are doing each operation for!
 
 <!------------------------- Start your work below ----------------------------->
 **Q1: What is the distribution of the extreme flow?**
-Q1.1 *Summarizing 1*: Here I calculate the *range*, *mean*, *median*,*sd*, and *sample size* for the extreme flow. 
+
+Q1.1 *Summarizing 1*: Here I calculate the *range*, *mean*, *median*, *sd*, and *sample size* for the extreme flow. 
+
 All these descriptive statistical indexes are useful for depict the distribution of the extreme flow.
 ```{r}
 flow_sample %>%
@@ -83,7 +87,8 @@ flow_sample %>%
 ```
 
 Q1.2 *Graphing 8*: Create 3 histograms out of flow with 10, 20, and 40 bins. I think the histogram with 40 bins is the best one which provide more information and more accurate relationships of the data. With only 10 and 20 bins, some bins plot the distribution in a crude way (i.e., just one bin), especially for the minimum part. 
-The histogram is useful to visualize the distribution of extreme flow. 
+
+The histogram is useful to visualize the distribution of extreme flow, which helps to answer this research question.
 ```{r}
 ggplot(flow_sample, aes(flow)) +
   facet_wrap(~ extreme_type)+
@@ -100,10 +105,11 @@ ggplot(flow_sample, aes(flow)) +
 ```
 
 **Q2:What is the distribution of the range of the flow in a year?**
-Note that the original question is How did the range of the flow change in a year? I revised it a little bit to make it more suitable and clear for the following analysis. 
+Note that the original question is How Does the range of the flow change in a year? I revised it a little bit to make it more suitable and clear for the following analysis. 
 
 Q2.1 *Summarizing 3*: Here I create a categorical variable with 3 or more groups from an existing numerical variable. 
-Generally speaking, this does not help for the question without any further theoretical backgrounds. Although 3 groups are created, the cutting points are arbitrary.
+
+Generally speaking, this does not help for current question without any further theoretical backgrounds. Although 3 groups are created, the cutting points are arbitrary.
 
 ```{r}
 flow_sample_new <- flow_sample %>%
@@ -117,11 +123,11 @@ table(flow_sample_new$range_level)
 ```
 
 Q2.2 *Graphing 6*: Create a graph, make one of the axes logarithmic, and format the axes labels.
+Original distribution is a positive skew, and logarithmic transformation is useful to depict the distribution of the range.
 
-
+It is useful to find that the distribution of range is log-normal by checking the plot, which helps answer the research question.
 
 ```{r}
-library(scales)
 
 ggplot(flow_sample_new,aes(extreme_range))+
   geom_density()
@@ -133,67 +139,97 @@ ggplot(flow_sample_new,aes(x=extreme_range))+
   geom_density()
 ```
 
-**Q3 What is the distribution of the maximum and minimum of the flow?**
+**Q3 What are the distributions of the maximum and minimum of the flow?**
 
-Q3.1 *Summarizing 2*
+Q3.1 *Summarizing 2*: Compute the number of observations for at least one of your categorical variables by `count()`.
+
+This is also useful to get the sample sizes for the maximum and minimum of the flow, which helps answer the research question.
+
 ```{r}
 flow_sample %>%
   count(extreme_type)
 ```
 
-Q3.2 *Graphing 5*
+Q3.2 *Graphing 7*: Make a graph where it makes sense to customize the alpha transparency.
+Here I combine the `histogram()` and `freqpoly()`, and to avoid the overlapping, the transparency is controlled. 
+
+This histogram help us understand the distribution of the maximum and minimum of the flow. 
+
+Note that there is no need to combine the `histogram()` and `freqpoly()` in practice. But I don't want to repeat the task. Task 8 is more reasonable, and the code are listed below. 
+
+
 ```{r}
-# #not reasonable, just for demonstrating that task 5 and 7 could be done in some way.
-# flow_sample %>%
-#   filter(extreme_type=="maximum")%>%
-#     ggplot(aes(flow))+
-#     geom_density()+
-#     geom_blank(alpha=0.8)
 
 flow_sample %>%
   filter(extreme_type=="maximum")%>%
-  ggplot(aes(month,flow))+
-  geom_point()+
-  geom_smooth()
+  ggplot(aes(flow)) +
+  geom_freqpoly(bins = 40)+
+  geom_histogram(bins = 40)
+
+
+flow_sample %>%
+  filter(extreme_type=="maximum")%>%
+  ggplot(aes(flow)) +
+  geom_freqpoly(bins = 40)+
+  geom_histogram(bins = 40,alpha=0.2)
 
 flow_sample %>%
   filter(extreme_type=="minimum")%>%
-  ggplot(aes(month,flow))+
-  geom_point()+
-  geom_smooth()
-  
+  ggplot(aes(flow)) +
+  geom_freqpoly(bins = 40)+
+  geom_histogram(bins = 40,alpha=0.2)
+
+# flow_sample %>%
+#   filter(extreme_type=="maximum")%>%
+#   ggplot(aes(flow)) +
+#   geom_histogram(bins = 10 )
+# 
+# 
+# flow_sample %>%
+#   filter(extreme_type=="maximum")%>%
+#   ggplot(aes(flow)) +
+#   geom_histogram(bins = 20 )
+# 
+# 
+# flow_sample %>%
+#   filter(extreme_type=="maximum")%>%
+#   ggplot(aes(flow)) +
+#   geom_histogram(bins = 40)
 
 ```
 
-4. *Did the maximum of flow relate to month?*
-Q4.1 *Summarizing 1*
+4. *Does the maximum of flow relate to month?*
+
+Q4.1 *Summarizing 1* Compute the range, mean, and two other summary statistics of one numerical variable across the groups of one categorical variable from your data. Please note only 1 observation is in August, so the results are a little weird but acceptable.
+
+Understand the descriptive statistical indexes can help us understand the relationship between the each group of month, which can be used for further analysis, e.g., ANOVA, to answer research question.
+
 ```{r}
 flow_sample %>%
   filter(extreme_type=="maximum")%>%
   group_by(month)%>%
-  summarise(maximum_mean = mean(flow,na.rm=T),maximum_median=median(flow,na.rm = T),maximum_sd=sd(flow,na.rm = T), maximum_n = length(flow))
+  summarise(maximum_range=max(flow,na.rm = T)-min(flow,na.rm = T), maximum_mean = mean(flow,na.rm=T),maximum_median=median(flow,na.rm = T),maximum_sd=sd(flow,na.rm = T), maximum_n = length(flow))
 
 
 ```
-Q4.2 *Graphing 5*
-```{r}
-# ggplot(flow_sample,aes(month))+
-#   geom_bar(aes(fill=extreme_type),alpha=0.3)
 
-maximum_mean<- as.numeric(flow_sample %>%
-  filter(extreme_type =="maximum")%>%
-  summarise(mean(flow)))
+Q4.2 *Graphing 5*:Create a graph out of summarized variables that has at least two geom layers.
+Combine the jitter plot and box plot can help us visualize the observations and their quadrilles. 
+
+From the plot and means, we can found June is related to higher maximums, which can help us to answer that the maximum of flow relates to month. 
+
+```{r}
+# flow_sample %>%
+#   filter(extreme_type=="maximum")%>%
+#   ggplot(aes(month,flow))+
+#   geom_point()+
+#   geom_smooth()
 
 flow_sample %>%
-  filter(extreme_type =="maximum")%>%
+  filter(extreme_type=="maximum")%>%
   ggplot(aes(as.factor(month),flow))+
   geom_boxplot()+
-  geom_hline(yintercept = maximum_mean)
-
-
-
-# ggplot(flow_sample,aes(flow))+
-#   geom_bar(aes(fill=extreme_type),alpha=0.3)
+  geom_jitter()
 
 ```
 
@@ -205,8 +241,13 @@ flow_sample %>%
 Based on the operations that you've completed, how much closer are you to answering your research questions? Think about what aspects of your research questions remain unclear. Can your research questions be refined, now that you've investigated your data a bit more? Which research questions are yielding interesting results?
 
 <!------------------------- Write your answer here ---------------------------->
+For Q1, the descriptive statistical indexes and the histogram have already answered the research question based on the paradigm in my research field. And the results show the difference between two types of extreme value. Further research questions may think about analysing the data by distinguishing the type of extreme value. 
 
+For Q2, the original question is “How Does the range of the flow change in a year?”. This question is not clear enough, which may be answered in an open-end way. So, I refine it as: What is the distribution of the range of the flow in a year? Based on the logarithmic transformation, we can find the distribution of the range should follow log-normal distribution. However, the question may need more statistical testing to prove the log-normal distribution.  Although creating the low, moderate, and high range group are kind of arbitrary, it is interesting to combine categories variables with other variables. For example, the range groups may also relate to month.
 
+For Q3, the histograms have partly answer answered the research question about the distributions of the maximum and minimum of the flow. However, the question may need more statistical indexes rather than a single plot.  The distributions of the maximum and minimum of the flow may follow normal distribution, but they are not perfect.
+
+For Q4, the descriptive statistical indexes and the boxplot cannot fully answer the question. This question needs approaches from inferential statistics. A linear regression model can be useful to answer this question.  In this way, I can refine the question as “Does the maximum of flow significantly differ from month?”. 
 <!----------------------------------------------------------------------------->
 
 # Task 2: Tidy your data (12.5 points)
@@ -227,8 +268,7 @@ Based on the definitions above, can you identify if your data is tidy or untidy?
 
 <!--------------------------- Start your work below --------------------------->
 
-Considering the definition of tidy data, my data are tidy. As the `glimpse()`and `head`shows, Each row is an **observation** for this station at the specific time. and Each column is a **variable**: Station_id is a categorical variable to recognize the station; Year, month, and day are the variables for the date; extreme_type is a categorical variable to distinguish the type of flow; sym is a a categorical variable, but there isn't any further description. As a result, Each cell is a **value** for a specific variable.
-As a result, our flow_sample is untidy. 
+Considering the definition of tidy data, my data are tidy. As the `glimpse()`and `head`shows, Each row is an **observation** for this station at the specific time. and Each column is a **variable**: station_id is a categorical variable to recognize the station; year, month, and day are the variables for the date; extreme_type is a categorical variable to distinguish the type of flow; sym is a a categorical variable, but I cannot find any further description from the official website. From each variable, we can find that Each cell is a **value** for a specific variable.
 
 
 ```{r}
@@ -283,15 +323,29 @@ Now, you should be more familiar with your data, and also have made progress in 
 Try to choose a version of your data that you think will be appropriate to answer these 2 questions in milestone 3. Use between 4 and 8 functions that we've covered so far (i.e. by filtering, cleaning, tidy'ing, dropping irrelvant columns, etc.). 
 
 <!--------------------------- Start your work below --------------------------->
+I choose  *Q2: What is the distribution of the range of the flow in a year?* and *Q4: Does the maximum of flow relate to month?* For Q2, we can create the low, moderate, and high range groups, which is interesting to combine this variable with other variable for further analysis. For Q4, this question needs approaches from inferential statistics,i.e., linear model, which is very suitable for milestone 3.
 
-
-
+Q2: The range of the flow in a year need to calculated by wide format, and the variables about station_id, sym, day, and month are not useful: (1) There is only one station_id; (2) There are too many missing values with sym; (3) There is no need to have day and month for the range **in a year**.
 ```{r}
-
+flow_sample_q2 <- flow_sample %>%
+  pivot_wider(id_cols = c(year,station_id), names_from = extreme_type,values_from = flow)%>%
+  mutate(extreme_range= maximum-minimum)%>%
+  mutate(range_level=case_when(extreme_range<200 ~ "low",
+                               extreme_range<300 ~ "moderate",
+                               T~"high"
+                               ))%>%
+  select(-station_id)
+head(flow_sample_q2)
 ```
 
-
+Q4: As mentioned before, station_id and sym are not required. Then for the question 4 *Does the maximum of flow relate to month?*, we only need extreme_type=="maximum". And then all the extreme_type is maximum now, we do not need extreme_type anymore. Finally, drop all the NA. 
 ```{r}
+flow_sample_q4 <- flow_sample %>%
+  select(-c(station_id,sym))%>%
+  filter(extreme_type=="maximum")%>%
+  select(-extreme_type)%>%
+  drop_na()
+head(flow_sample_q4)
 
 ```
 
