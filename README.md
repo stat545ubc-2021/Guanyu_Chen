@@ -14,11 +14,11 @@ Within "Guanyu_Chen" you will find 2 folders and 2 files: mini-project-1, mini-p
 ##### mini-project-1 Folder 
 - mini-project-1.Rmd is an R markdown file that was taken from the STAT545A website, including the assignmet.  
 - mini-project-1.md is the default output for this assignmet.
-- mini-project-1_files/figure-gfm are the plots for mini-project-1.md
+- mini-project-1_files/figure-gfm is the folder include all the plots for mini-project-1.md
 - ##### mini-project-2 Folder 
 - mini-project-2.Rmd is an R markdown file that was taken from the STAT545A website, including the assignmet.  
 - mini-project-2.md is the default output for this assignmet.
-- mini-project-2_files/figure-gfm are the plots for mini-project-2.md
+- mini-project-2_files/figure-gfm is the folder include all the plots for for mini-project-2.md
 
 #### How to run the code in the folder
 You can open Rstudio and start a new project by the link, or just download the Rmd file and run it in Studio.  
