@@ -334,8 +334,8 @@ And the csv is created in the output folder in the mini\_project-3
 folder.
 
 ``` r
-dir.create(here::here("mini_project-3","output"))
-write_csv(table3_1, here::here("mini_project-3","output","table3_1.csv"))
+dir.create(here::here("output"))
+write_csv(table3_1, here::here("output","table3_1.csv"))
 ```
 
 <!----------------------------------------------------------------------------->
@@ -354,8 +354,8 @@ folder. Use the functions `saveRDS()` and `readRDS()`.
 m1 is saved as rds. And m2 stores the output of `readRDS()`.
 
 ``` r
-saveRDS(m1, here::here("mini_project-3","output","model.rds"))
-m2<- readRDS(here::here("mini_project-3","output","model.rds"))
+saveRDS(m1, here::here("output","model.rds"))
+m2<- readRDS(here::here("output","model.rds"))
 print(m2)
 ```
 

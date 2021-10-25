@@ -231,8 +231,8 @@ table3_1<- flow_sample %>%
 
 And the csv is created in the output folder in the mini_project-3 folder.
 ```{r}
-dir.create(here::here("mini_project-3","output"))
-write_csv(table3_1, here::here("mini_project-3","output","table3_1.csv"))
+dir.create(here::here("output"))
+write_csv(table3_1, here::here("output","table3_1.csv"))
 ```
 
 <!----------------------------------------------------------------------------->
@@ -246,8 +246,8 @@ Write your model object from Exercise 2 to an R binary file (an RDS), and load i
 <!-------------------------- Start your work below ---------------------------->
 m1 is saved as rds. And m2 stores the output of `readRDS()`. 
 ```{r}
-saveRDS(m1, here::here("mini_project-3","output","model.rds"))
-m2<- readRDS(here::here("mini_project-3","output","model.rds"))
+saveRDS(m1, here::here("output","model.rds"))
+m2<- readRDS(here::here("output","model.rds"))
 print(m2)
 ```
 
