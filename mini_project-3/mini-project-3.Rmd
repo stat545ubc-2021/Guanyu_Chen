@@ -62,7 +62,8 @@ flow_sample_q4 <- flow_sample %>%
   drop_na()%>%
   mutate(month_new=as_factor(month))
 
-save(flow_sample_q4,file = "flow_sample_q4.Rdata")
+# There is no to save the dataset in the current assignment. 
+# save(flow_sample_q4,file = "flow_sample_q4.Rdata")
 
 
 ```
