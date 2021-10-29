@@ -79,8 +79,22 @@ Place the code for your plot below.
 <!-------------------------- Start your work below ---------------------------->
 
 To conduct this project, I provide and revise the code from mini project
-to get the selected dataset. A new factor about month is created for
-conduting the following analysis.
+2 to get the selected dataset. **flow\_sample** is used as mentioned
+before. A new factor about month is created for conduting the following
+analysis.
+
+``` r
+flow_sample_q4 <- flow_sample %>%
+  select(-c(station_id,sym))%>%
+  filter(extreme_type=="maximum")%>%
+  select(-extreme_type)%>%
+  drop_na()%>%
+  mutate(month_new=as_factor(month))
+
+# There is no to save the dataset in the current assignment. 
+# save(flow_sample_q4,file = "flow_sample_q4.Rdata")
+# For simplified the repository structure, flow_sample_q4.Rdata is not saved from assignment 2 and loaded here.
+```
 
 Here is the boxplot of flows across different months.
 
@@ -141,7 +155,7 @@ higher than other months.
 
 ``` r
 flow_sample_q4_reorder <- flow_sample_q4 %>%
-  mutate(month_new=fct_reorder(month_new,flow,mean,.desc=T))
+  mutate(month_new=fct_reorder(month_new,flow,mean,.desc=T)) #reorder the levels of month
 
 levels(flow_sample_q4$month_new)
 ```
@@ -182,7 +196,7 @@ table(flow_sample_q4$month_new)
 
 ``` r
 flow_sample_q4_lump <- flow_sample_q4 %>%
-  mutate(month_new=fct_lump_min(month_new,20))
+  mutate(month_new=fct_lump_min(month_new,20))# lump month
 
 flow_sample_q4_lump %>%
   ggplot(aes(month_new,flow))+
@@ -233,10 +247,11 @@ specifics in STAT 545.
 
 <!-------------------------- Start your work below ---------------------------->
 
-Here I store the model object as a “m1”, and print its output to screen.
+Here I store the model object as a “m1” by using `lm()`, and print its
+output to screen.
 
 ``` r
-m1<- lm(flow~month_new,data=flow_sample_q4_lump)
+m1<- lm(flow~month_new,data=flow_sample_q4_lump)#lm()is used
 summary(m1)
 ```
 
@@ -277,9 +292,12 @@ Y, or a single value like a regression coefficient or a p-value.
 
 <!-------------------------- Start your work below ---------------------------->
 
-1.P-value is provided as below. 2.“output” is stored as a tibble and
-printed out. P-value is printed out by `output$p.value[2]` 3. The
-results is obtained by `broom::tidy()`.
+1.P-value is provided as below.
+
+2.“output” is stored as a tibble and printed out. P-value is printed out
+by `output$p.value[2]`
+
+3.  The results is obtained by `broom::tidy()`.
 
 ``` r
 output <- broom::tidy(m1)
@@ -328,14 +346,28 @@ Here is the summary table.
 table3_1<- flow_sample %>%
   group_by(extreme_type)%>%
   summarise(flow_mean = mean(flow,na.rm=T),flow_range=max(flow,na.rm = T)-min(flow,na.rm = T),flow_median=median(flow,na.rm = T),flow_sd=sd(flow,na.rm = T),flow_n=length(na.omit(flow)))
+
+print(table3_1)
 ```
+
+    ## # A tibble: 2 x 6
+    ##   extreme_type flow_mean flow_range flow_median flow_sd flow_n
+    ##   <chr>            <dbl>      <dbl>       <dbl>   <dbl>  <int>
+    ## 1 maximum         212.       359         204     61.7      109
+    ## 2 minimum           6.27       4.82        6.15   0.965    107
 
 And the csv is created in the output folder in the mini\_project-3
 folder.
 
 ``` r
 dir.create(here::here("output"))
-write_csv(table3_1, here::here("output","table3_1.csv"))
+```
+
+    ## Warning in dir.create(here::here("output")): 'D:\Dropbox\00_Course\STAT
+    ## 545\Mini_project\Guanyu_Chen\output' already exists
+
+``` r
+write_csv(table3_1, here::here("output","table3_1.csv")) # save the table
 ```
 
 <!----------------------------------------------------------------------------->
@@ -356,7 +388,7 @@ m1 is saved as rds. And m2 stores the output of `readRDS()`.
 ``` r
 saveRDS(m1, here::here("output","model.rds"))
 m2<- readRDS(here::here("output","model.rds"))
-print(m2)
+print(m2) # to show the readRDS() works
 ```
 
     ## 

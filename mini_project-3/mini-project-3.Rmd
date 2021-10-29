@@ -52,9 +52,9 @@ But first, tasks 1 and 2 below ask you to modify a plot you made in a previous m
 
 <!-------------------------- Start your work below ---------------------------->
 
-To conduct this project, I provide and revise the code from mini project to get the selected dataset. A new factor about month is created for conduting the following analysis. 
+To conduct this project, I provide and revise the code from mini project 2 to get the selected dataset. **flow_sample** is used as mentioned before. A new factor about month is created for conduting the following analysis. 
 
-```{r, echo= F}
+```{r}
 flow_sample_q4 <- flow_sample %>%
   select(-c(station_id,sym))%>%
   filter(extreme_type=="maximum")%>%
@@ -64,7 +64,7 @@ flow_sample_q4 <- flow_sample %>%
 
 # There is no to save the dataset in the current assignment. 
 # save(flow_sample_q4,file = "flow_sample_q4.Rdata")
-
+# For simplified the repository structure, flow_sample_q4.Rdata is not saved from assignment 2 and loaded here.
 
 ```
 
@@ -108,7 +108,7 @@ Now, choose two of the following tasks.
 
 ```{r}
 flow_sample_q4_reorder <- flow_sample_q4 %>%
-  mutate(month_new=fct_reorder(month_new,flow,mean,.desc=T))
+  mutate(month_new=fct_reorder(month_new,flow,mean,.desc=T)) #reorder the levels of month
 
 levels(flow_sample_q4$month_new)
 levels(flow_sample_q4_reorder$month_new)
@@ -135,7 +135,7 @@ flow_sample_q4_reorder %>%
 ```{r}
 table(flow_sample_q4$month_new)
 flow_sample_q4_lump <- flow_sample_q4 %>%
-  mutate(month_new=fct_lump_min(month_new,20))
+  mutate(month_new=fct_lump_min(month_new,20))# lump month
 
 flow_sample_q4_lump %>%
   ggplot(aes(month_new,flow))+
@@ -173,10 +173,10 @@ Fit a model or run a hypothesis test that provides insight on this variable with
 
 <!-------------------------- Start your work below ---------------------------->
 
-Here I store the model object as a "m1", and print its output to screen. 
+Here I store the model object as a "m1" by using `lm()`, and print its output to screen. 
 
 ```{r}
-m1<- lm(flow~month_new,data=flow_sample_q4_lump)
+m1<- lm(flow~month_new,data=flow_sample_q4_lump)#lm()is used
 summary(m1)
 
 ```
@@ -194,7 +194,9 @@ Produce something relevant from your fitted model: either predictions on Y, or a
   
 <!-------------------------- Start your work below ---------------------------->
 1.P-value is provided as below. 
+
 2."output" is stored as a tibble and printed out. P-value is printed out by `output$p.value[2]`
+
 3. The results is obtained by `broom::tidy()`.
 
 ```{r}
@@ -228,12 +230,13 @@ table3_1<- flow_sample %>%
   group_by(extreme_type)%>%
   summarise(flow_mean = mean(flow,na.rm=T),flow_range=max(flow,na.rm = T)-min(flow,na.rm = T),flow_median=median(flow,na.rm = T),flow_sd=sd(flow,na.rm = T),flow_n=length(na.omit(flow)))
 
+print(table3_1)
 ```
 
 And the csv is created in the output folder in the mini_project-3 folder.
 ```{r}
 dir.create(here::here("output"))
-write_csv(table3_1, here::here("output","table3_1.csv"))
+write_csv(table3_1, here::here("output","table3_1.csv")) # save the table
 ```
 
 <!----------------------------------------------------------------------------->
@@ -249,7 +252,7 @@ m1 is saved as rds. And m2 stores the output of `readRDS()`.
 ```{r}
 saveRDS(m1, here::here("output","model.rds"))
 m2<- readRDS(here::here("output","model.rds"))
-print(m2)
+print(m2) # to show the readRDS() works
 ```
 
 
